@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arduino — 5 Tasks</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@300;400;500;700&display=css" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0c0c0f;
+  --surface: #13131a;
+  --surface2: #1a1a24;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #e8e8f0;
+  --muted: #6b6b80;
+  --t1: #f59e0b;
+  --t2: #10b981;
+  --t3: #3b82f6;
+  --t4: #ef4444;
+  --t5: #a855f7;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Urbanist', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* HEADER */
+header {
+  padding: 80px 48px 60px;
+  max-width: 1100px;
+  margin: 0 auto;
+  border-bottom: 1px solid var(--border);
+}
+.header-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.header-title {
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -1.5px;
+  margin-bottom: 16px;
+}
+.header-title span { color: var(--muted); }
+.header-sub {
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--muted);
+  max-width: 500px;
+  line-height: 1.7;
+}
+
+/* NAV PILLS */
+.nav-row {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  padding: 24px 48px;
+  max-width: 1100px;
+  margin: 0 auto;
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(12,12,15,0.9);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-pill {
+  padding: 7px 18px;
+  border-radius: 100px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  border: 1px solid var(--border2);
+  color: var(--muted);
+  transition: all 0.2s;
+  background: transparent;
+}
+.nav-pill:hover, .nav-pill.active { color: #fff; border-color: transparent; }
+.p1:hover, .p1.active { background: var(--t1); }
+.p2:hover, .p2.active { background: var(--t2); }
+.p3:hover, .p3.active { background: var(--t3); }
+.p4:hover, .p4.active { background: var(--t4); }
+.p5:hover, .p5.active { background: var(--t5); }
+
+/* MAIN */
+main { max-width: 1100px; margin: 0 auto; padding: 0 48px 100px; }
+
+/* TASK BLOCK */
+.task {
+  padding: 64px 0;
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 64px;
+  align-items: start;
+}
+.task:last-child { border-bottom: none; }
+
+/* LEFT META */
+.task-meta { position: sticky; top: 100px; }
+.task-number {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.task-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+.task-desc {
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+.task-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 100px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.use-case {
+  margin-top: 20px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.use-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  color: var(--muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.use-text { font-size: 0.8rem; color: var(--text); line-height: 1.5; }
+
+/* RIGHT CONTENT */
+.task-content { display: flex; flex-direction: column; gap: 20px; }
+
+/* CIRCUIT CARD */
+.circuit-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+}
+.card-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+/* WIRING TABLE */
+.wiring {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+.wiring th {
+  text-align: left;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.wiring td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+}
+.wiring tr:last-child td { border-bottom: none; }
+.wiring tr:hover td { background: var(--surface2); }
+.pin { color: #f59e0b; }
+.comp { color: #10b981; }
+
+/* CODE BLOCK */
+.code-block {
+  background: #0a0a0d;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.code-dots { display: flex; gap: 6px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.dot-r { background: #ff5f57; }
+.dot-y { background: #febc2e; }
+.dot-g { background: #28c840; }
+.code-filename {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+.copy-btn {
+  background: transparent;
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-family: 'JetBrains Mono', monospace;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.copy-btn:hover { border-color: #fff; color: #fff; }
+pre {
+  padding: 24px;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  line-height: 1.7;
+  color: #c8c8d8;
+}
+/* syntax-ish coloring */
+.kw { color: #c084fc; }
+.cm { color: #4b5563; font-style: italic; }
+.fn { color: #60a5fa; }
+.num { color: #f59e0b; }
+.str { color: #34d399; }
+.tp { color: #f87171; }
+
+/* COMPONENTS LIST */
+.components {
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.comp-chip {
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* COLORS PER TASK */
+.t1 .task-number, .t1 .task-badge { color: var(--t1); }
+.t1 .task-badge { background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.2); }
+.t1 .circuit-card { border-color: rgba(245,158,11,0.15); }
+.t1 .card-label { color: var(--t1); opacity: 0.7; }
+
+.t2 .task-number, .t2 .task-badge { color: var(--t2); }
+.t2 .task-badge { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.2); }
+.t2 .circuit-card { border-color: rgba(16,185,129,0.15); }
+.t2 .card-label { color: var(--t2); opacity: 0.7; }
+
+.t3 .task-number, .t3 .task-badge { color: var(--t3); }
+.t3 .task-badge { background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.2); }
+.t3 .circuit-card { border-color: rgba(59,130,246,0.15); }
+.t3 .card-label { color: var(--t3); opacity: 0.7; }
+
+.t4 .task-number, .t4 .task-badge { color: var(--t4); }
+.t4 .task-badge { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.2); }
+.t4 .circuit-card { border-color: rgba(239,68,68,0.15); }
+.t4 .card-label { color: var(--t4); opacity: 0.7; }
+
+.t5 .task-number, .t5 .task-badge { color: var(--t5); }
+.t5 .task-badge { background: rgba(168,85,247,0.12); border: 1px solid rgba(168,85,247,0.2); }
+.t5 .circuit-card { border-color: rgba(168,85,247,0.15); }
+.t5 .card-label { color: var(--t5); opacity: 0.7; }
+
+/* RESPONSIVE */
+@media (max-width: 820px) {
+  header, .nav-row, main { padding-left: 20px; padding-right: 20px; }
+  header { padding-top: 48px; }
+  .task { grid-template-columns: 1fr; gap: 32px; }
+  .task-meta { position: static; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-eyebrow">// Arduino Lab — Marcus Jaijal · RNU University</div>
+  <h1 class="header-title">Five Tasks.<br><span>One Board.</span></h1>
+  <p class="header-sub">Five embedded systems exercises covering output control, variable signals, user input, alerts, and information display — each with full Arduino code and wiring guide.</p>
+</header>
+
+<nav class="nav-row">
+  <a class="nav-pill p1" href="#task1">01 · LED Control</a>
+  <a class="nav-pill p2" href="#task2">02 · Variable Control</a>
+  <a class="nav-pill p3" href="#task3">03 · User Interaction</a>
+  <a class="nav-pill p4" href="#task4">04 · Alert System</a>
+  <a class="nav-pill p5" href="#task5">05 · Display System</a>
+</nav>
+
+<main>
+
+<!-- ═══════════ TASK 1 ═══════════ -->
+<section class="task t1" id="task1">
+  <div class="task-meta">
+    <div class="task-number">Task 01</div>
+    <h2 class="task-title">Basic Output Control</h2>
+    <p class="task-desc">Control an LED using a digital output pin. The LED cycles through ON and OFF states with a delay — the foundation of all embedded output logic.</p>
+    <div class="task-badge">🔴 LED · Digital Output</div>
+    <div class="use-case">
+      <div class="use-label">Real-world use</div>
+      <div class="use-text">Traffic lights, indicator lamps, status LEDs on industrial machines, power indicators on consumer electronics.</div>
+    </div>
+  </div>
+
+  <div class="task-content">
+    <div class="circuit-card">
+      <div class="card-label">Components needed</div>
+      <div class="components">
+        <span class="comp-chip">Arduino Uno</span>
+        <span class="comp-chip">LED (any colour)</span>
+        <span class="comp-chip">220Ω Resistor</span>
+        <span class="comp-chip">Breadboard</span>
+        <span class="comp-chip">Jumper wires</span>
+      </div>
+    </div>
+
+    <div class="circuit-card">
+      <div class="card-label">Wiring</div>
+      <table class="wiring">
+        <thead><tr><th>Component</th><th>Pin / Terminal</th><th>Arduino</th></tr></thead>
+        <tbody>
+          <tr><td class="comp">LED (+) Anode</td><td>—</td><td class="pin">Pin 13 (via 220Ω)</td></tr>
+          <tr><td class="comp">LED (−) Cathode</td><td>—</td><td class="pin">GND</td></tr>
+          <tr><td class="comp">Resistor</td><td>Between Pin 13 & LED</td><td class="pin">In series</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="code-filename">task1_led_control.ino</div>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><span class="cm">/*
+ * Task 1 — Basic Output Control
+ * Blinks an LED connected to Pin 13.
+ * Components: LED, 220Ω resistor
+ */</span>
+
+<span class="kw">const</span> <span class="tp">int</span> LED_PIN = <span class="num">13</span>;
+
+<span class="tp">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(LED_PIN, OUTPUT);   <span class="cm">// Set pin as output</span>
+  <span class="fn">Serial</span>.<span class="fn">begin</span>(<span class="num">9600</span>);
+  <span class="fn">Serial</span>.<span class="fn">println</span>(<span class="str">"Task 1 — LED Control started"</span>);
+}
+
+<span class="tp">void</span> <span class="fn">loop</span>() {
+  <span class="fn">digitalWrite</span>(LED_PIN, HIGH);  <span class="cm">// LED ON</span>
+  <span class="fn">Serial</span>.<span class="fn">println</span>(<span class="str">"LED: ON"</span>);
+  <span class="fn">delay</span>(<span class="num">1000</span>);                   <span class="cm">// Wait 1 second</span>
+
+  <span class="fn">digitalWrite</span>(LED_PIN, LOW);   <span class="cm">// LED OFF</span>
+  <span class="fn">Serial</span>.<span class="fn">println</span>(<span class="str">"LED: OFF"</span>);
+  <span class="fn">delay</span>(<span class="num">1000</span>);                   <span class="cm">// Wait 1 second</span>
+}</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ TASK 2 ═══════════ -->
+<section class="task t2" id="task2">
+  <div class="task-meta">
+    <div class="task-number">Task 02</div>
+    <h2 class="task-title">Variable Control System</h2>
+    <p class="task-desc">Use PWM (analogWrite) to gradually change LED brightness from 0 to full and back — simulating a fade effect through variable voltage output.</p>
+    <div class="task-badge">💡 PWM · Brightness Fade</div>
+    <div class="use-case">
+      <div class="use-label">Real-world use</div>
+      <div class="use-text">Smart lighting systems, phone screen auto-brightness, motor speed control, fan speed regulators.</div>
+    </div>
+  </div>
+
+  <div class="task-content">
+    <div class="circuit-card">
+      <div class="card-label">Components needed</div>
+      <div class="components">
+        <span class="comp-chip">Arduino Uno</span>
+        <span class="comp-chip">LED</span>
+        <span class="comp-chip">220Ω Resistor</span>
+        <span class="comp-chip">Breadboard</span>
+        <span class="comp-chip">Jumper wires</span>
+      </div>
+    </div>
+
+    <div class="circuit-card">
+      <div class="card-label">Wiring — use a PWM-capable pin (~)</div>
+      <table class="wiring">
+        <thead><tr><th>Component</th><th>Terminal</th><th>Arduino</th></tr></thead>
+        <tbody>
+          <tr><td class="comp">LED (+) Anode</td><td>—</td><td class="pin">Pin 9 ~ (via 220Ω)</td></tr>
+          <tr><td class="comp">LED (−) Cathode</td><td>—</td><td class="pin">GND</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="code-filename">task2_pwm_brightness.ino</div>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><span class="cm">/*
+ * Task 2 — Variable Control System
+ * Fades an LED in and out using PWM on Pin 9.
+ * PWM range: 0 (off) → 255 (full brightness)
+ */</span>
+
+<span class="kw">const</span> <span class="tp">int</span> LED_PIN = <span class="num">9</span>;  <span class="cm">// Must be a PWM pin (~)</span>
+
+<span class="tp">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(LED_PIN, OUTPUT);
+  <span class="fn">Serial</span>.<span class="fn">begin</span>(<span class="num">9600</span>);
+  <span class="fn">Serial</span>.<span class="fn">println</span>(<span class="str">"Task 2 — PWM Brightness started"</span>);
+}
+
+<span class="tp">void</span> <span class="fn">loop</span>() {
+  <span class="cm">// Fade IN: 0 → 255</span>
+  <span class="kw">for</span> (<span class="tp">int</span> brightness = <span class="num">0</span>; brightness &lt;= <span class="num">255</span>; brightness++) {
+    <span class="fn">analogWrite</span>(LED_PIN, brightness);
+    <span class="fn">Serial</span>.<span class="fn">print</span>(<span class="str">"Brightness: "</span>);
+    <span class="fn">Serial</span>.<span class="fn">println</span>(brightness);
+    <span class="fn">delay</span>(<span class="num">8</span>);
+  }
+
+  <span class="cm">// Fade OUT: 255 → 0</span>
+  <span class="kw">for</span> (<span class="tp">int</span> brightness = <span class="num">255</span>; brightness &gt;= <span class="num">0</span>; brightness--) {
+    <span class="fn">analogWrite</span>(LED_PIN, brightness);
+    <span class="fn">Serial</span>.<span class="fn">print</span>(<span class="str">"Brightness: "</span>);
+    <span class="fn">Serial</span>.<span class="fn">println</span>(brightness);
+    <span class="fn">delay</span>(<span class="num">8</span>);
+  }
+
+  <span class="fn">delay</span>(<span class="num">300</span>);  <span class="cm">// Pause before repeating</span>
+}</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ TASK 3 ═══════════ -->
+<section class="task t3" id="task3">
+  <div class="task-meta">
+    <div class="task-number">Task 03</div>
+    <h2 class="task-title">User Interaction System</h2>
+    <p class="task-desc">A push button controls an LED. Pressing the button toggles the LED on/off — demonstrating digital input reading and state management.</p>
+    <div class="task-badge">🔘 Button · Digital Input</div>
+    <div class="use-case">
+      <div class="use-label">Real-world use</div>
+      <div class="use-text">Elevator call buttons, vending machines, keyboard switches, doorbell systems, manual override controls.</div>
+    </div>
+  </div>
+
+  <div class="task-content">
+    <div class="circuit-card">
+      <div class="card-label">Components needed</div>
+      <div class="components">
+        <span class="comp-chip">Arduino Uno</span>
+        <span class="comp-chip">Push Button</span>
+        <span class="comp-chip">LED</span>
+        <span class="comp-chip">220Ω Resistor</span>
+        <span class="comp-chip">10kΩ Resistor (pull-down)</span>
+        <span class="comp-chip">Breadboard</span>
+      </div>
+    </div>
+
+    <div class="circuit-card">
+      <div class="card-label">Wiring</div>
+      <table class="wiring">
+        <thead><tr><th>Component</th><th>Terminal</th><th>Arduino</th></tr></thead>
+        <tbody>
+          <tr><td class="comp">Button (one leg)</td><td>—</td><td class="pin">Pin 2</td></tr>
+          <tr><td class="comp">Button (same leg)</td><td>—</td><td class="pin">10kΩ → GND (pull-down)</td></tr>
+          <tr><td class="comp">Button (other leg)</td><td>—</td><td class="pin">5V</td></tr>
+          <tr><td class="comp">LED (+) Anode</td><td>—</td><td class="pin">Pin 13 (via 220Ω)</td></tr>
+          <tr><td class="comp">LED (−) Cathode</td><td>—</td><td class="pin">GND</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="code-filename">task3_button_led.ino</div>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><span class="cm">/*
+ * Task 3 — User Interaction System
+ * Push button toggles LED on/off.
+ * Uses debounce logic for clean input reading.
+ */</span>
+
+<span class="kw">const</span> <span class="tp">int</span> BTN_PIN = <span class="num">2</span>;
+<span class="kw">const</span> <span class="tp">int</span> LED_PIN = <span class="num">13</span>;
+
+<span class="tp">bool</span> ledState      = <span class="kw">false</span>;
+<span class="tp">bool</span> lastBtnState  = <span class="kw">false</span>;
+<span class="tp">unsigned long</span> lastDebounce = <span class="num">0</span>;
+<span class="kw">const</span> <span class="tp">int</span> DEBOUNCE_MS = <span class="num">50</span>;
+
+<span class="tp">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(BTN_PIN, INPUT);   <span class="cm">// External pull-down resistor</span>
+  <span class="fn">pinMode</span>(LED_PIN, OUTPUT);
+  <span class="fn">Serial</span>.<span class="fn">begin</span>(<span class="num">9600</span>);
+  <span class="fn">Serial</span>.<span class="fn">println</span>(<span class="str">"Task 3 — Button Toggle ready"</span>);
+}
+
+<span class="tp">void</span> <span class="fn">loop</span>() {
+  <span class="tp">bool</span> btnReading = <span class="fn">digitalRead</span>(BTN_PIN);
+
+  <span class="cm">// Detect rising edge with debounce</span>
+  <span class="kw">if</span> (btnReading == <span class="kw">true</span> &amp;&amp; lastBtnState == <span class="kw">false</span>) {
+    <span class="kw">if</span> (<span class="fn">millis</span>() - lastDebounce &gt; DEBOUNCE_MS) {
+      ledState = !ledState;                 <span class="cm">// Toggle state</span>
+      <span class="fn">digitalWrite</span>(LED_PIN, ledState);
+      <span class="fn">Serial</span>.<span class="fn">print</span>(<span class="str">"Button pressed — LED: "</span>);
+      <span class="fn">Serial</span>.<span class="fn">println</span>(ledState ? <span class="str">"ON"</span> : <span class="str">"OFF"</span>);
+      lastDebounce = <span class="fn">millis</span>();
+    }
+  }
+  lastBtnState = btnReading;
+}</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ TASK 4 ═══════════ -->
+<section class="task t4" id="task4">
+  <div class="task-meta">
+    <div class="task-number">Task 04</div>
+    <h2 class="task-title">Alert / Notification System</h2>
+    <p class="task-desc">A passive buzzer plays different tones to signal alerts. A button triggers the alarm — useful for safety-critical feedback systems.</p>
+    <div class="task-badge">🔔 Buzzer · Tone Output</div>
+    <div class="use-case">
+      <div class="use-label">Real-world use</div>
+      <div class="use-text">Fire alarms, microwave beeps, reversing sensors in vehicles, hospital call systems, security intrusion alerts.</div>
+    </div>
+  </div>
+
+  <div class="task-content">
+    <div class="circuit-card">
+      <div class="card-label">Components needed</div>
+      <div class="components">
+        <span class="comp-chip">Arduino Uno</span>
+        <span class="comp-chip">Passive Buzzer</span>
+        <span class="comp-chip">Push Button</span>
+        <span class="comp-chip">10kΩ Resistor</span>
+        <span class="comp-chip">Breadboard</span>
+      </div>
+    </div>
+
+    <div class="circuit-card">
+      <div class="card-label">Wiring</div>
+      <table class="wiring">
+        <thead><tr><th>Component</th><th>Terminal</th><th>Arduino</th></tr></thead>
+        <tbody>
+          <tr><td class="comp">Buzzer (+)</td><td>Positive</td><td class="pin">Pin 8</td></tr>
+          <tr><td class="comp">Buzzer (−)</td><td>Negative</td><td class="pin">GND</td></tr>
+          <tr><td class="comp">Button (one leg)</td><td>—</td><td class="pin">Pin 2 + 10kΩ → GND</td></tr>
+          <tr><td class="comp">Button (other leg)</td><td>—</td><td class="pin">5V</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="code-filename">task4_buzzer_alert.ino</div>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><span class="cm">/*
+ * Task 4 — Alert / Notification System
+ * Button triggers a buzzer alarm with escalating tones.
+ * Uses tone() for passive buzzer frequency control.
+ */</span>
+
+<span class="kw">const</span> <span class="tp">int</span> BUZZER_PIN = <span class="num">8</span>;
+<span class="kw">const</span> <span class="tp">int</span> BTN_PIN    = <span class="num">2</span>;
+
+<span class="tp">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(BUZZER_PIN, OUTPUT);
+  <span class="fn">pinMode</span>(BTN_PIN, INPUT);
+  <span class="fn">Serial</span>.<span class="fn">begin</span>(<span class="num">9600</span>);
+  <span class="fn">Serial</span>.<span class="fn">println</span>(<span class="str">"Task 4 — Alert System ready"</span>);
+}
+
+<span class="tp">void</span> <span class="fn">playAlert</span>(<span class="tp">int</span> level) {
+  <span class="kw">switch</span> (level) {
+    <span class="kw">case</span> <span class="num">1</span>:  <span class="cm">// Single short beep</span>
+      <span class="fn">tone</span>(BUZZER_PIN, <span class="num">1000</span>, <span class="num">200</span>);
+      <span class="fn">delay</span>(<span class="num">300</span>);
+      <span class="kw">break</span>;
+    <span class="kw">case</span> <span class="num">2</span>:  <span class="cm">// Double beep</span>
+      <span class="fn">tone</span>(BUZZER_PIN, <span class="num">1500</span>, <span class="num">150</span>); <span class="fn">delay</span>(<span class="num">200</span>);
+      <span class="fn">tone</span>(BUZZER_PIN, <span class="num">1500</span>, <span class="num">150</span>); <span class="fn">delay</span>(<span class="num">200</span>);
+      <span class="kw">break</span>;
+    <span class="kw">case</span> <span class="num">3</span>:  <span class="cm">// Alarm siren</span>
+      <span class="kw">for</span> (<span class="tp">int</span> freq = <span class="num">800</span>; freq &lt;= <span class="num">2400</span>; freq += <span class="num">100</span>) {
+        <span class="fn">tone</span>(BUZZER_PIN, freq);
+        <span class="fn">delay</span>(<span class="num">30</span>);
+      }
+      <span class="fn">noTone</span>(BUZZER_PIN);
+      <span class="kw">break</span>;
+  }
+}
+
+<span class="tp">int</span> alertLevel = <span class="num">1</span>;
+
+<span class="tp">void</span> <span class="fn">loop</span>() {
+  <span class="kw">if</span> (<span class="fn">digitalRead</span>(BTN_PIN) == HIGH) {
+    <span class="fn">Serial</span>.<span class="fn">print</span>(<span class="str">"Alert level: "</span>);
+    <span class="fn">Serial</span>.<span class="fn">println</span>(alertLevel);
+    <span class="fn">playAlert</span>(alertLevel);
+
+    alertLevel++;
+    <span class="kw">if</span> (alertLevel &gt; <span class="num">3</span>) alertLevel = <span class="num">1</span>;  <span class="cm">// Cycle 1 → 2 → 3 → 1</span>
+    <span class="fn">delay</span>(<span class="num">400</span>);
+  }
+}</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ TASK 5 ═══════════ -->
+<section class="task t5" id="task5">
+  <div class="task-meta">
+    <div class="task-number">Task 05</div>
+    <h2 class="task-title">Display / Information System</h2>
+    <p class="task-desc">Read temperature and humidity from a DHT11 sensor and display live readings on a 16×2 LCD via I2C — a complete sensor-to-display pipeline.</p>
+    <div class="task-badge">📟 DHT11 · LCD I2C</div>
+    <div class="use-case">
+      <div class="use-label">Real-world use</div>
+      <div class="use-text">Weather stations, HVAC dashboards, server room monitors, smart home displays, greenhouse climate control.</div>
+    </div>
+  </div>
+
+  <div class="task-content">
+    <div class="circuit-card">
+      <div class="card-label">Components needed</div>
+      <div class="components">
+        <span class="comp-chip">Arduino Uno</span>
+        <span class="comp-chip">DHT11 Sensor</span>
+        <span class="comp-chip">16×2 LCD (I2C)</span>
+        <span class="comp-chip">10kΩ Resistor</span>
+        <span class="comp-chip">Jumper wires</span>
+      </div>
+    </div>
+
+    <div class="circuit-card">
+      <div class="card-label">Wiring</div>
+      <table class="wiring">
+        <thead><tr><th>Component</th><th>Terminal</th><th>Arduino</th></tr></thead>
+        <tbody>
+          <tr><td class="comp">DHT11</td><td>VCC</td><td class="pin">5V</td></tr>
+          <tr><td class="comp">DHT11</td><td>GND</td><td class="pin">GND</td></tr>
+          <tr><td class="comp">DHT11</td><td>DATA</td><td class="pin">Pin 7 (+ 10kΩ to 5V)</td></tr>
+          <tr><td class="comp">LCD I2C</td><td>VCC</td><td class="pin">5V</td></tr>
+          <tr><td class="comp">LCD I2C</td><td>GND</td><td class="pin">GND</td></tr>
+          <tr><td class="comp">LCD I2C</td><td>SDA</td><td class="pin">A4</td></tr>
+          <tr><td class="comp">LCD I2C</td><td>SCL</td><td class="pin">A5</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="circuit-card" style="border-color:rgba(168,85,247,0.2)">
+      <div class="card-label" style="color:var(--t5)">Libraries required</div>
+      <div class="components">
+        <span class="comp-chip">DHT sensor library — Adafruit</span>
+        <span class="comp-chip">LiquidCrystal_I2C</span>
+        <span class="comp-chip">Wire.h (built-in)</span>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="code-filename">task5_dht11_lcd.ino</div>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><span class="cm">/*
+ * Task 5 — Display / Information System
+ * Reads DHT11 sensor and shows temp + humidity on LCD.
+ * Libraries: Adafruit DHT, LiquidCrystal_I2C
+ */</span>
+
+<span class="kw">#include</span> &lt;DHT.h&gt;
+<span class="kw">#include</span> &lt;Wire.h&gt;
+<span class="kw">#include</span> &lt;LiquidCrystal_I2C.h&gt;
+
+<span class="kw">#define</span> DHT_PIN    <span class="num">7</span>
+<span class="kw">#define</span> DHT_TYPE   DHT11
+
+DHT dht(DHT_PIN, DHT_TYPE);
+LiquidCrystal_I2C lcd(<span class="num">0x27</span>, <span class="num">16</span>, <span class="num">2</span>);  <span class="cm">// Address 0x27, 16 cols, 2 rows</span>
+
+<span class="tp">void</span> <span class="fn">setup</span>() {
+  <span class="fn">Serial</span>.<span class="fn">begin</span>(<span class="num">9600</span>);
+  dht.<span class="fn">begin</span>();
+
+  lcd.<span class="fn">init</span>();
+  lcd.<span class="fn">backlight</span>();
+  lcd.<span class="fn">setCursor</span>(<span class="num">0</span>, <span class="num">0</span>);
+  lcd.<span class="fn">print</span>(<span class="str">"  Sensor Ready  "</span>);
+  lcd.<span class="fn">setCursor</span>(<span class="num">0</span>, <span class="num">1</span>);
+  lcd.<span class="fn">print</span>(<span class="str">" Initializing.. "</span>);
+  <span class="fn">delay</span>(<span class="num">2000</span>);
+  lcd.<span class="fn">clear</span>();
+
+  <span class="fn">Serial</span>.<span class="fn">println</span>(<span class="str">"Task 5 — DHT11 + LCD ready"</span>);
+}
+
+<span class="tp">void</span> <span class="fn">loop</span>() {
+  <span class="tp">float</span> humidity    = dht.<span class="fn">readHumidity</span>();
+  <span class="tp">float</span> temperature = dht.<span class="fn">readTemperature</span>();  <span class="cm">// Celsius</span>
+
+  <span class="kw">if</span> (<span class="fn">isnan</span>(humidity) || <span class="fn">isnan</span>(temperature)) {
+    lcd.<span class="fn">clear</span>();
+    lcd.<span class="fn">print</span>(<span class="str">"Sensor error!"</span>);
+    <span class="fn">Serial</span>.<span class="fn">println</span>(<span class="str">"ERROR: DHT11 read failed"</span>);
+    <span class="fn">delay</span>(<span class="num">2000</span>);
+    <span class="kw">return</span>;
+  }
+
+  <span class="cm">// LCD Row 1: Temperature</span>
+  lcd.<span class="fn">setCursor</span>(<span class="num">0</span>, <span class="num">0</span>);
+  lcd.<span class="fn">print</span>(<span class="str">"Temp:  "</span>);
+  lcd.<span class="fn">print</span>(temperature, <span class="num">1</span>);
+  lcd.<span class="fn">print</span>(<span class="str">" C  "</span>);
+
+  <span class="cm">// LCD Row 2: Humidity</span>
+  lcd.<span class="fn">setCursor</span>(<span class="num">0</span>, <span class="num">1</span>);
+  lcd.<span class="fn">print</span>(<span class="str">"Hum:   "</span>);
+  lcd.<span class="fn">print</span>(humidity, <span class="num">1</span>);
+  lcd.<span class="fn">print</span>(<span class="str">" %  "</span>);
+
+  <span class="fn">Serial</span>.<span class="fn">print</span>(<span class="str">"Temp: "</span>); <span class="fn">Serial</span>.<span class="fn">print</span>(temperature); <span class="fn">Serial</span>.<span class="fn">print</span>(<span class="str">"°C  "</span>);
+  <span class="fn">Serial</span>.<span class="fn">print</span>(<span class="str">"Humidity: "</span>); <span class="fn">Serial</span>.<span class="fn">print</span>(humidity); <span class="fn">Serial</span>.<span class="fn">println</span>(<span class="str">"%"</span>);
+
+  <span class="fn">delay</span>(<span class="num">2000</span>);  <span class="cm">// Update every 2 seconds</span>
+}</pre>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 2000);
+  });
+}
+
+// Active nav pill on scroll
+const sections = document.querySelectorAll('.task');
+const pills = document.querySelectorAll('.nav-pill');
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      pills.forEach(p => p.classList.remove('active'));
+      const id = e.target.id;
+      const num = id.replace('task','');
+      const pill = document.querySelector(`.p${num}`);
+      if (pill) pill.classList.add('active');
+    }
+  });
+}, { threshold: 0.4 });
+sections.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
